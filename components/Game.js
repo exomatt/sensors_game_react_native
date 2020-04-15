@@ -19,20 +19,20 @@ function Item({ value, position }) {
   if (value === 'E' || (position === 0 && value === "S")) 
   return (
     <View style={styles.rectangle_egg}>
-      <Text>Start</Text>
       <Image style={styles.egg} source={require("../assets/jajo.gif")} />
     </View>
   );
-  else if (value === "S")
+  else if (value === "S"){
+  console.log("Start robie");
     return (
       <View style={styles.rectangle_green}>
-        <Text>Start</Text>
+        <Text style={styles.text}>START</Text>
       </View>
-    );
+    );}
   else if (value === "M")
     return (
       <View style={styles.rectangle_green}>
-        <Text>Meta</Text>
+        <Text style={styles.text}>STOP</Text>
       </View>
     );
   else if (value === 1)
@@ -124,11 +124,6 @@ const Game = ({ navigation }) => {
      if (newPosition >= 0) {
        if (newArray[newPosition] === 1) {
          newArray[newPosition] = "E";
-         if (position === 0) {
-           newArray[position] = "S";
-         } else {
-           newArray[position] = 1;
-         }
          setPosition(newPosition);
          setArray(newArray);
        }
@@ -140,7 +135,11 @@ const Game = ({ navigation }) => {
      if (newPosition <= 24) {
        if (newArray[newPosition] === 1) {
          newArray[newPosition] = "E";
-         newArray[position] = 1;
+          if (position === 0) {
+            newArray[position] = "S";
+          } else {
+            newArray[position] = 1;
+          }
          console.log(newPosition);
          console.log(newArray);
          setPosition(newPosition);
@@ -200,6 +199,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#666464",
+  },
+  text: {
+    textAlign: "center",
   },
 });
 

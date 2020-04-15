@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { TextInput, Button } from "react-native-paper";
-import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
-import { Accelerometer } from "expo-sensors";
-
+import React from "react";
+import {  Button } from "react-native-paper";
+import { StyleSheet, View, Text } from "react-native";
 const Result = ({ navigation }) => {
   return (
     <View>
-    <Text>Win!!!!!</Text>
+      <Text style={styles.text}>Win!!!!!</Text>
       <Button
         mode="contained"
         style={styles.btn}
@@ -23,6 +21,15 @@ const styles = StyleSheet.create({
     margin: 5,
     marginLeft: 10,
     marginRight: 10,
+  },
+  text: {
+    width: "90%",
+    marginLeft: "auto",
+    marginRight: "auto",
+    paddingBottom: 0,
+    marginTop: 0,
+    fontSize: 20,
+    textAlign: "center",
   },
 });
 
