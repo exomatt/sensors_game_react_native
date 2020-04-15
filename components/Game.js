@@ -1,15 +1,28 @@
 import React, { useState, useEffect } from "react";
+import { Accelerometer } from "expo-sensors";
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  Image,
+} from "react-native";
+function round(n) {
+  if (!n) {
+    return 0;
+  }
 
-import { StyleSheet, Text, View, FlatList, Image } from "react-native";
+  return Math.floor(n * 100) / 100;
+}
 
 function Item({ value, position }) {
-  console.log(value);
   if (value === 'E' || (position === 0 && value === "S")) 
   return (
-      <View style={styles.rectangle_egg}>
-        <Image style={styles.egg} source={require('../assets/jajo.gif')} />
-      </View>
-    );
+    <View style={styles.rectangle_egg}>
+      <Text>Start</Text>
+      <Image style={styles.egg} source={require("../assets/jajo.gif")} />
+    </View>
+  );
   else if (value === "S")
     return (
       <View style={styles.rectangle_green}>
@@ -28,49 +41,129 @@ function Item({ value, position }) {
 }
 
 const Game = ({ navigation }) => {
-  const [array, setArray] = useState([]);
-  const [position, setPosition] = useState([]);
+  const [array, setArray] = useState(["S",0,0,0,1,1,1,1,0,0,0,1,1,1,1,1,1,0,0,0,1,1,1,"M"]);
+  const [position, setPosition] = useState(0);
+  const [data, setData] = useState({});
+
+ useEffect(() => {
+   _toggle();
+ }, []);
+
+ useEffect(() => {
+   return () => {
+     _unsubscribe();
+   };
+ }, []);
 
   useEffect(() => {
-    setPosition(0);
-    let data = [
-      "S",
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      "M",
-    ];
-    setArray(data);
-  }, []);
+    move(data);
+  }, [data]);
 
+ const _toggle = () => {
+   if (this._subscription) {
+     _unsubscribe();
+   } else {
+     _subscribe();
+   }
+ };
+
+ const _slow = () => {
+   Accelerometer.setUpdateInterval(1000);
+ };
+
+ const _subscribe = () => {
+    _slow();
+   this._subscription = Accelerometer.addListener((accelerometerData) => {
+    setData(accelerometerData);
+   });
+ };
+
+ const _unsubscribe = () => {
+   this._subscription && this._subscription.remove();
+   this._subscription = null;
+ };
+
+ const move = (accelerometerData) => {
+   let { x, y, z } = accelerometerData;
+   newArray = array.slice();
+   // left
+   if (x > 0.60) {
+     let newPosition = position - 1;
+     if (newPosition >= 0) {
+       if (newArray[newPosition] === 1) {
+         newArray[newPosition] = "E";
+         newArray[position] = 1;
+         console.log(newArray);
+         setPosition(newPosition);
+         setArray(newArray);
+       }
+     }
+   }
+   // right
+   else if (x < -0.60) {
+     let newPosition = position + 1;
+     if (newPosition <= 24) {
+        if (newArray[newPosition] === 'M'){
+            navigation.navigate("Result")
+        }
+       else if (newArray[newPosition] === 1) {
+         newArray[newPosition] = "E";
+         if (position === 0) {
+           newArray[position] = "S";
+         } else {
+           newArray[position] = 1;
+         }
+         setPosition(newPosition);
+         setArray(newArray);
+       }
+     }
+   }
+   // up
+   else if (z > 0.60) {
+     let newPosition = position - 4;
+     if (newPosition >= 0) {
+       if (newArray[newPosition] === 1) {
+         newArray[newPosition] = "E";
+         if (position === 0) {
+           newArray[position] = "S";
+         } else {
+           newArray[position] = 1;
+         }
+         setPosition(newPosition);
+         setArray(newArray);
+       }
+     }
+   }
+   // down
+   else if (z < -0.60) {
+     let newPosition = position + 4;
+     if (newPosition <= 24) {
+       if (newArray[newPosition] === 1) {
+         newArray[newPosition] = "E";
+         newArray[position] = 1;
+         console.log(newPosition);
+         console.log(newArray);
+         setPosition(newPosition);
+         setArray(newArray);
+       }
+     }
+   }
+ };
+ let { x, y, z } = data;
   return (
     <View style={styles.container}>
       <FlatList
         data={array}
-        renderItem={({ item }) => <Item value={item} position={position}/>}
+        renderItem={({ item }) => <Item value={item} position={position} />}
         //Setting the number of column
         numColumns={4}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => "" + index}
       />
+      <View style={styles.sensor}>
+        <Text style={styles.text}>
+          x: {round(x)} y: {round(y)} z: {round(z)}
+        </Text>
+      </View>
     </View>
   );
 };
